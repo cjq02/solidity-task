@@ -55,7 +55,6 @@ contract Voting {
             voteCount: 0,
             exists: true
         });
-        votedUserList.push(msg.sender);
         emit CandidateCreated(newCandidate.name);
     }
 
@@ -64,10 +63,12 @@ contract Voting {
      * @param candidateId 候选人ID
      */
     function vote(uint candidateId) public candidateExists(candidateId) {
+        require(hasVoted[msg.sender] == 0, "You have already voted");
         // 增加候选人得票数
         candidates[candidateId].voteCount++;
         // 如果是新候选人，添加到数组
         hasVoted[msg.sender] = candidateId;
+        votedUserList.push(msg.sender);
         // 触发事件
         emit Voted(msg.sender, candidateId);
     }
@@ -87,7 +88,7 @@ contract Voting {
     /**
      * @dev 重置所有候选人得票数和投票记录
      */
-    function resetVotes() public {
+    function resetVotes() public onlyOwner {
         // 重置得票数
         for (uint candidateId = 0; candidateId < candidateCount; ) {
             candidates[candidateId].voteCount = 0;

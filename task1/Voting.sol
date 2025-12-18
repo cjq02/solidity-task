@@ -7,6 +7,7 @@ contract Voting {
         uint voteCount;
         bool exists;
     }
+
     // 候选人总数（自增 ID，下一个候选人的 ID = candidateCount++）
     uint candidateCount = 1;
 
@@ -38,7 +39,8 @@ contract Voting {
     }
 
     /**
-     * 创建候选人
+     * @dev 创建候选人
+     * @param newCandidate 候选人信息
      */
     function createCandidate(
         Candidate calldata newCandidate
@@ -57,38 +59,45 @@ contract Voting {
         emit CandidateCreated(newCandidate.name);
     }
 
-    // TODO: 实现投票函数
+    /**
+     * @dev 投票给指定候选人
+     * @param candidateId 候选人ID
+     */
     function vote(uint candidateId) public candidateExists(candidateId) {
         // 增加候选人得票数
         candidates[candidateId].voteCount++;
-        // TODO: 如果是新候选人，添加到数组
+        // 如果是新候选人，添加到数组
         hasVoted[msg.sender] = candidateId;
-        // TODO: 触发事件
+        // 触发事件
         emit Voted(msg.sender, candidateId);
     }
 
-    // TODO: 实现查询得票数函数
+    /**
+     * @dev 查询候选人得票数
+     * @param candidateId 候选人ID
+     * @return 得票数
+     */
     function getVotes(
         uint candidateId
     ) public view candidateExists(candidateId) returns (uint) {
-        // TODO: 返回候选人得票数
+        // 返回候选人得票数
         return candidates[candidateId].voteCount;
     }
 
-    // 实现重置所有得票数函数
+    /**
+     * @dev 重置所有候选人得票数和投票记录
+     */
     function resetVotes() public {
-        // 遍历所有候选人，重置得票数为0
+        // 重置得票数
         for (uint candidateId = 0; candidateId < candidateCount; ) {
             candidates[candidateId].voteCount = 0;
-
             unchecked {
                 candidateId++;
             }
         }
 
         uint votedUserListLength = votedUserList.length;
-
-        // 清空hasVoted
+        // 重置投票记录
         for (uint i = 0; i < votedUserListLength; i++) {
             hasVoted[votedUserList[i]] = 0;
         }

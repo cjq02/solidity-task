@@ -8,8 +8,10 @@ contract Voting {
         bool exists;
     }
 
+    uint private constant FIRST_CANDIDATE_ID = 1;
+
     // 候选人总数（自增 ID，下一个候选人的 ID = candidateCount++）
-    uint candidateCount = 1;
+    uint candidateCount = FIRST_CANDIDATE_ID;
 
     address public immutable OWNER;
 
@@ -90,7 +92,7 @@ contract Voting {
      */
     function resetVotes() public onlyOwner {
         // 重置得票数
-        for (uint candidateId = 0; candidateId < candidateCount; ) {
+        for (uint candidateId = FIRST_CANDIDATE_ID; candidateId < candidateCount; ) {
             candidates[candidateId].voteCount = 0;
             unchecked {
                 candidateId++;

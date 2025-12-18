@@ -8,14 +8,16 @@ contract Voting {
         bool exists;
     }
     // 候选人总数（自增 ID，下一个候选人的 ID = candidateCount++）
-    uint candidateCount = 0;
+    uint candidateCount = 1;
 
     address public immutable OWNER;
 
     // 以candidateId为key
     mapping(uint => Candidate) public candidates;
-    // 以candidateId为key，嵌套内以sender address为key
-    mapping(uint => mapping(address => bool)) public hasVoted;
+    // 以sender address为key，候选人Id为值
+    mapping(address => uint) public hasVoted;
+    // 已投过票的用户
+    address[] public votedUserList;
 
     event CandidateCreated(string name);
     event Voted(address indexed voter, uint candidateId);
@@ -51,6 +53,7 @@ contract Voting {
             voteCount: 0,
             exists: true
         });
+        votedUserList.push(msg.sender);
         emit CandidateCreated(newCandidate.name);
     }
 
@@ -59,7 +62,7 @@ contract Voting {
         // 增加候选人得票数
         candidates[candidateId].voteCount++;
         // TODO: 如果是新候选人，添加到数组
-        hasVoted[candidateId][msg.sender] = true;
+        hasVoted[msg.sender] = candidateId;
         // TODO: 触发事件
         emit Voted(msg.sender, candidateId);
     }
@@ -77,12 +80,19 @@ contract Voting {
         // 遍历所有候选人，重置得票数为0
         for (uint candidateId = 0; candidateId < candidateCount; ) {
             candidates[candidateId].voteCount = 0;
-            // 怎么清空hasVoted
-            // hasVoted[candidateId]
+
             unchecked {
                 candidateId++;
             }
         }
+
+        uint votedUserListLength = votedUserList.length;
+
+        // 清空hasVoted
+        for (uint i = 0; i < votedUserListLength; i++) {
+            hasVoted[votedUserList[i]] = 0;
+        }
+        delete votedUserList;
 
         // 触发事件
         emit VotesReset();

@@ -4,16 +4,15 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 /**
  * @title NFTMarketplace
  * @dev NFT 市场合约，基于 ERC721 标准
+ * @notice OpenZeppelin v5.0+ 已移除 Counters 库，使用 uint256 代替
  */
 contract NFTMarketplace is ERC721, ERC721URIStorage, Ownable {
-    using Counters for Counters.Counter;
-
-    Counters.Counter private _tokenIdCounter;
+    // Token ID 计数器（从 0 开始）
+    uint256 private _nextTokenId;
 
     // 映射：tokenId => tokenURI
     mapping(uint256 => string) private _tokenURIs;
@@ -48,9 +47,7 @@ contract NFTMarketplace is ERC721, ERC721URIStorage, Ownable {
         address to,
         string memory tokenURI
     ) public onlyOwner returns (uint256) {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-
+        uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, tokenURI);
 
@@ -77,7 +74,7 @@ contract NFTMarketplace is ERC721, ERC721URIStorage, Ownable {
      * @return 下一个可用的 token ID
      */
     function nextTokenId() public view returns (uint256) {
-        return _tokenIdCounter.current();
+        return _nextTokenId;
     }
 
     /**
@@ -85,7 +82,7 @@ contract NFTMarketplace is ERC721, ERC721URIStorage, Ownable {
      * @return 已铸造的 NFT 总数
      */
     function totalSupply() public view returns (uint256) {
-        return _tokenIdCounter.current();
+        return _nextTokenId;
     }
 
     function tokenURI(

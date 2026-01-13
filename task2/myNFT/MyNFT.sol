@@ -10,20 +10,20 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract MyNFT is ERC721, ERC721URIStorage, Ownable {
-    // TODO: 用于生成递增 tokenId
+    // 用于生成递增 tokenId
     uint256 private _tokenIdCounter;
 
     // 最大供应量
     uint256 public constant MAX_SUPPLY = 100;
 
-    // TODO: 事件（可选但推荐）
+    // 事件（可选但推荐）
     event NFTMinted(
         address indexed to,
         uint256 indexed tokenId,
         string tokenURI
     );
 
-    // TODO: 构造函数：把 name 与 symbol 传给 ERC721
+    // 构造函数：把 name 与 symbol 传给 ERC721
     constructor(
         string memory name_,
         string memory symbol_

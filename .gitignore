@@ -1,2 +1,18 @@
 .cursorrules
 .cursor
+
+# Compiler files
+task3/nft-auction-market/cache/
+task3/nft-auction-market/out/
+task3/nft-auction-market/lib/
+
+# Ignores development broadcast logs
+task3/nft-auction-market!/broadcast
+task3/nft-auction-market/broadcast/*/31337/
+task3/nft-auction-market/broadcast/**/dry-run/
+
+# Docs
+task3/nft-auction-market/docs/
+
+# Dotenv file
+task3/nft-auction-market/.env

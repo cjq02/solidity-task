@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-import "../../src/auction/AuctionV1.sol";
-import "../../src/nft/NFTMarketplace.sol";
+import {Test} from "forge-std/Test.sol";
+import {AuctionV1} from "../../src/auction/AuctionV1.sol";
+import {NFTMarketplace} from "../../src/nft/NFTMarketplace.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {AggregatorV3Interface} from "chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";

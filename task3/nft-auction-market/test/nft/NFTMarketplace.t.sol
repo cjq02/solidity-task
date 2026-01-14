@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {NFTMarketplace} from "../../src/nft/NFTMarketplace.sol";
 import {IERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
@@ -275,7 +275,7 @@ contract NFTMarketplaceTest is Test {
         assertEq(nft.balanceOf(user1), 2);
     }
 
-    function test_SupportsInterface() public {
+    function test_SupportsInterface() public view {
         // ERC721 接口 ID
         bytes4 erc721Id = type(IERC721).interfaceId;
 

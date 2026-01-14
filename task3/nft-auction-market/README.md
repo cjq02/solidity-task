@@ -54,9 +54,10 @@ nft-auction-market/
 │
 ├── script/                       # 部署脚本
 │   ├── deploy/
-│   │   └── Deploy.s.sol          # 部署 AuctionV1 代理合约
+│   │   ├── DeployNFT.s.sol       # 部署 NFTMarketplace 合约
+│   │   └── DeployAuction.s.sol   # 部署 AuctionV1 代理合约
 │   ├── upgrade/
-│   │   └── Upgrade.s.sol         # 升级到 V2 脚本
+│   │   └── UpgradeAuction.s.sol  # 升级 Auction 到 V2 脚本
 │   └── Interact.s.sol            # 合约交互脚本
 │
 ├── doc/                          # 文档
@@ -339,8 +340,6 @@ Infura 是 ConsenSys（MetaMask 母公司）提供的免费 RPC 服务，操作�
 | `ETH_PRICE_FEED` | Chainlink ETH/USD 价格预言机地址 | `0x694AA1769357215DE4FAC081bf1f309aDC325306` |
 | `FEE_RECIPIENT` | 手续费接收地址 | 你的钱包地址 |
 
-> **在此处放置 .env 文件配置截图**
-
 ---
 
 #### 3. 部署 NFT 合约
@@ -349,7 +348,7 @@ Infura 是 ConsenSys（MetaMask 母公司）提供的免费 RPC 服务，操作�
 # 加载环境变量并部署
 source .env
 
-forge script script/deploy/Deploy.s.sol \
+forge script script/deploy/DeployNFT.s.sol \
   --rpc-url $SEPOLIA_RPC_URL \
   --broadcast \
   --verify \
@@ -357,17 +356,15 @@ forge script script/deploy/Deploy.s.sol \
   --delay 15
 ```
 
-![deploy-nft1](./img/deploy-nft1.png)
-
-![deploy-nft2](./img/deploy-nft2.png)
+![deploy-nft](./img/deploy-nft.png)
 
 **部署信息**:
 
 | 项目 | 值 |
 |-----|---|
-| 合约地址 | `0x...` |
-| 交易哈希 | `0x...` |
-| Etherscan | [查看合约](链接) |
+| 合约地址 | `0x41B2eA52228706FD2a1c81Ab9713A71a710072b4` |
+| 交易哈希 | `0xa446644d3b5390b740a04332e83a4c9aa40c31938f7d0aecc70833b72a0a1c77` |
+| Etherscan | [查看合约](https://sepolia.etherscan.io/address/0x41B2eA52228706FD2a1c81Ab9713A71a710072b4) |
 
 **部署命令说明**:
 - `--rpc-url`: RPC 端点
@@ -382,7 +379,7 @@ forge script script/deploy/Deploy.s.sol \
 
 ```bash
 # 部署 AuctionV1 代理合约
-forge script script/deploy/Deploy.s.sol:DeployAuction \
+forge script script/deploy/DeployAuction.s.sol \
   --rpc-url $SEPOLIA_RPC_URL \
   --broadcast \
   --verify \
@@ -390,16 +387,19 @@ forge script script/deploy/Deploy.s.sol:DeployAuction \
   --delay 15
 ```
 
-> **在此处放置拍卖合约部署截图**
+![deploy-auction1](./img/deploy-auction1.png)
+
+![deploy-auction2](./img/deploy-auction2.png)
 
 **部署信息**:
 
 | 项目 | 值 |
 |-----|---|
-| 实现合约地址 | `0x4D5F655c9F1C9E6701D473CB15998a3527Ff1E28` |
-| 代理合约地址 | `0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240` |
-| 交易哈希 | `0xcb8abb4af7011c5bb87afcaeee74fbf7d85a702472b2681ad5d10cbb9af83e1a` |
-| Etherscan | [查看合约](https://sepolia.etherscan.io/address/0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240) |
+| 实现合约地址 | `0x5D768CeDdE71054D6D081a92B600853102eBaD5D` |
+| 代理合约地址 | `0xbB3cA2e1Bbc7618A8D6689aCed4C201406bade45` |
+| 实现合约交易哈希 | `0x469a88304fde8e28858643f332588265d52adf768991ce2c6b14686b5963e1cb` |
+| 代理合约交易哈希 | `0x7fd0b1929d7eeee0f1b28ed8fe3b7b67a771a24ab7999b0de15fb7ec33045bc4` |
+| Etherscan | [查看代理合约](https://sepolia.etherscan.io/address/0xbB3cA2e1Bbc7618A8D6689aCed4C201406bade45) |
 
 **部署参数**:
 
@@ -483,7 +483,7 @@ cast storage <PROXY_ADDRESS> 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a92
 
 ```bash
 # 升级到 AuctionV2
-forge script script/upgrade/Upgrade.s.sol \
+forge script script/upgrade/UpgradeAuction.s.sol \
   --rpc-url $SEPOLIA_RPC_URL \
   --broadcast \
   --verify \
@@ -499,10 +499,10 @@ forge script script/upgrade/Upgrade.s.sol \
 
 | 项目 | 值 |
 |-----|---|
-| V2 实现合约地址 | `0x5b6295cD578E923aF2E7ADe81d081C3259377508` |
-| 升级交易哈希 | `0x7df5b8364b5ac2facc517f474cf5d4f78a1d80c6826e6d792d0ccf145fda4f14` |
-| 部署交易哈希 | `0xd15fcae666ab654e11fb788e5f6b4e47190d3010a400e20c1cfd228314b1ab4a` |
-| Etherscan | [查看实现合约](https://sepolia.etherscan.io/address/0x5b6295cD578E923aF2E7ADe81d081C3259377508) |
+| V2 实现合约地址 | `0x8c28979080D7789fe38A868E3dbd9731C268B35b` |
+| 升级交易哈希 | `0x10c9b17b012233f4ffed890286945144baf20d4e2e0d1b18522533629349be1a` |
+| 部署交易哈希 | `0x0b357cf44ae043c383b21df6fb4c8a932fb4ee6eb86147c5ac43344d6fa6402a` |
+| Etherscan | [查看实现合约](https://sepolia.etherscan.io/address/0x8c28979080D7789fe38A868E3dbd9731C268B35b) |
 
 #### 3. 验证升级
 
@@ -577,7 +577,7 @@ auction.endAuction(auctionId);
 
 | 合约 | 地址 | Etherscan |
 |-----|------|-----------|
-| NFTMarketplace | `0x...` | [查看](链接) |
+| NFTMarketplace | `0x41B2eA52228706FD2a1c81Ab9713A71a710072b4` | [查看](https://sepolia.etherscan.io/address/0x41B2eA52228706FD2a1c81Ab9713A71a710072b4) |
 | Auction Proxy | `0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240` | [查看](https://sepolia.etherscan.io/address/0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240) |
 | Auction Implementation (V1) | `0x4D5F655c9F1C9E6701D473CB15998a3527Ff1E28` | [查看](https://sepolia.etherscan.io/address/0x4D5F655c9F1C9E6701D473CB15998a3527Ff1E28) |
 | Auction Implementation (V2) | `0x5b6295cD578E923aF2E7ADe81d081C3259377508` | [查看](https://sepolia.etherscan.io/address/0x5b6295cD578E923aF2E7ADe81d081C3259377508) |

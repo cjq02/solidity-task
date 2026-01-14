@@ -15,11 +15,11 @@ import "../interface/INFTMarketplace.sol";
 import "./PriceConverter.sol";
 
 /**
- * @title Auction
- * @dev NFT 拍卖合约，支持 ETH 和 ERC20 出价（UUPS 可升级版本）
+ * @title AuctionV2
+ * @dev NFT 拍卖合约升级版，添加动态手续费计算功能
  * @custom:security-contact security@example.com
  */
-contract Auction is
+contract AuctionV2 is
     Initializable,
     IAuction,
     OwnableUpgradeable,
@@ -29,7 +29,7 @@ contract Auction is
     using SafeERC20 for IERC20;
     using PriceConverter for AggregatorV3Interface;
 
-    // ========== 状态变量 ==========
+    // ========== 状态变量（与 V1 保持兼容） ==========
 
     uint256 private _auctionIdCounter;
     mapping(uint256 => IAuction.AuctionInfo) private _auctions;
@@ -42,6 +42,15 @@ contract Auction is
     mapping(address => AggregatorV3Interface) public tokenPriceFeeds;
     uint256 public feeRate;
     address public feeRecipient;
+
+    // ========== V2 新增：动态手续费配置 ==========
+
+    struct FeeTier {
+        uint256 minAmount; // 最小金额（USD，18 位小数）
+        uint256 feeRate; // 手续费率（基点）
+    }
+
+    FeeTier[] public feeTiers;
 
     // ========== 修饰符 ==========
 
@@ -84,6 +93,9 @@ contract Auction is
         ethPriceFeed = AggregatorV3Interface(_ethPriceFeed);
         feeRecipient = _feeRecipient;
         feeRate = _feeRate;
+
+        // V2 新增：初始化默认手续费层级
+        feeTiers.push(FeeTier({minAmount: 0, feeRate: _feeRate}));
     }
 
     // ========== 拍卖管理 ==========
@@ -220,7 +232,8 @@ contract Auction is
 
         IERC721(auction.nftContract).safeTransferFrom(address(this), winningBid.bidder, auction.tokenId);
 
-        uint256 fee = (winningBid.amount * feeRate) / 10000;
+        // V2 改进：使用动态手续费计算
+        uint256 fee = calculateFee(winningBid.amount, winningBid.isETH, auction.paymentToken);
         uint256 sellerAmount = winningBid.amount - fee;
 
         if (winningBid.isETH) {
@@ -303,6 +316,72 @@ contract Auction is
     function setFeeRecipient(address _feeRecipient) external onlyOwner {
         require(_feeRecipient != address(0), "Invalid fee recipient");
         feeRecipient = _feeRecipient;
+    }
+
+    // ========== V2 新增：动态手续费功能 ==========
+
+    /**
+     * @notice 添加手续费层级
+     */
+    function addFeeTier(uint256 minAmount, uint256 _feeRate) external onlyOwner {
+        require(_feeRate <= 1000, "Fee rate too high");
+        feeTiers.push(FeeTier({minAmount: minAmount, feeRate: _feeRate}));
+    }
+
+    /**
+     * @notice 移除手续费层级
+     */
+    function removeFeeTier(uint256 index) external onlyOwner {
+        require(index < feeTiers.length, "Invalid index");
+        feeTiers[index] = feeTiers[feeTiers.length - 1];
+        feeTiers.pop();
+    }
+
+    /**
+     * @notice 更新手续费层级
+     */
+    function updateFeeTier(uint256 index, uint256 minAmount, uint256 _feeRate) external onlyOwner {
+        require(index < feeTiers.length, "Invalid index");
+        require(_feeRate <= 1000, "Fee rate too high");
+        feeTiers[index] = FeeTier({minAmount: minAmount, feeRate: _feeRate});
+    }
+
+    /**
+     * @notice 获取所有手续费层级
+     */
+    function getFeeTiers() external view returns (FeeTier[] memory) {
+        return feeTiers;
+    }
+
+    /**
+     * @notice 计算手续费（支持动态手续费）
+     * @dev V2 新增：修复了原版本 ERC20 手续费计算为 0 的 bug
+     */
+    function calculateFee(
+        uint256 amount,
+        bool isETH,
+        address paymentToken
+    ) public view returns (uint256) {
+        // 计算 USD 价值
+        uint256 usdValue;
+        if (isETH) {
+            usdValue = ethPriceFeed.getETHAmountInUSD(amount);
+        } else {
+            // V2 修复：正确计算 ERC20 代币的 USD 价值
+            require(address(tokenPriceFeeds[paymentToken]) != address(0), "Price feed not set");
+            usdValue = tokenPriceFeeds[paymentToken].getTokenAmountInUSD(amount);
+        }
+
+        // 查找适用的手续费层级
+        uint256 applicableFeeRate = feeRate;
+        for (uint256 i = feeTiers.length; i > 0; i--) {
+            if (usdValue >= feeTiers[i - 1].minAmount) {
+                applicableFeeRate = feeTiers[i - 1].feeRate;
+                break;
+            }
+        }
+
+        return (amount * applicableFeeRate) / 10000;
     }
 
     // ========== 提现函数 ==========

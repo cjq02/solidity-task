@@ -17,10 +17,10 @@ import "./PriceConverter.sol";
 
 /**
  * @title Auction
- * @dev NFT 拍卖合约，支持 ETH 和 ERC20 出价（UUPS 可升级版本）
+ * @dev NFT 拍卖合约基类，支持 ETH 和 ERC20 出价（UUPS 可升级版本）
  * @custom:security-contact security@example.com
  */
-contract Auction is
+abstract contract Auction is
     Initializable,
     IAuction,
     IERC721Receiver,
@@ -63,7 +63,7 @@ contract Auction is
     // ========== UUPS 升级 ==========
 
     /// @notice UUPS 升级授权函数（只有 owner 可以升级）
-    function _authorizeUpgrade(address) internal override onlyOwner {}
+    function _authorizeUpgrade(address) internal virtual override onlyOwner {}
 
     // ========== 初始化 ==========
 
@@ -73,7 +73,7 @@ contract Auction is
         address _ethPriceFeed,
         address _feeRecipient,
         uint256 _feeRate
-    ) public initializer {
+    ) public virtual initializer {
         require(_ethPriceFeed != address(0), "Invalid price feed");
         require(_feeRecipient != address(0), "Invalid fee recipient");
         require(_feeRate <= 1000, "Fee rate too high");
@@ -86,7 +86,13 @@ contract Auction is
         ethPriceFeed = AggregatorV3Interface(_ethPriceFeed);
         feeRecipient = _feeRecipient;
         feeRate = _feeRate;
+
+        // 钩子函数，允许子合约扩展初始化逻辑
+        _initializeHook();
     }
+
+    /// @notice 初始化钩子函数，子合约可以重写
+    function _initializeHook() internal virtual {}
 
     // ========== 拍卖管理 ==========
 
@@ -99,7 +105,7 @@ contract Auction is
         uint256 duration,
         uint256 minBidUSD,
         address paymentToken
-    ) external returns (uint256) {
+    ) external virtual returns (uint256) {
         require(nftContract != address(0), "Invalid NFT contract");
         require(duration > 0, "Invalid duration");
         require(minBidUSD > 0, "Invalid min bid");
@@ -137,7 +143,7 @@ contract Auction is
     /**
      * @notice 使用 ETH 出价
      */
-    function placeBid(uint256 auctionId) external payable onlyActiveAuction(auctionId) nonReentrant {
+    function placeBid(uint256 auctionId) external payable virtual onlyActiveAuction(auctionId) nonReentrant {
         require(msg.value > 0, "Bid amount must be greater than 0");
 
         AuctionInfo storage auction = _auctions[auctionId];
@@ -168,7 +174,7 @@ contract Auction is
     /**
      * @notice 使用 ERC20 代币出价
      */
-    function placeBidWithToken(uint256 auctionId, uint256 amount) external onlyActiveAuction(auctionId) nonReentrant {
+    function placeBidWithToken(uint256 auctionId, uint256 amount) external virtual onlyActiveAuction(auctionId) nonReentrant {
         require(amount > 0, "Bid amount must be greater than 0");
 
         AuctionInfo storage auction = _auctions[auctionId];
@@ -205,7 +211,7 @@ contract Auction is
     /**
      * @notice 结束拍卖
      */
-    function endAuction(uint256 auctionId) external nonReentrant {
+    function endAuction(uint256 auctionId) external virtual nonReentrant {
         AuctionInfo storage auction = _auctions[auctionId];
         require(auction.status == IAuction.AuctionStatus.Active, "Auction not active");
         require(block.timestamp >= auction.endTime, "Auction not ended");
@@ -222,7 +228,8 @@ contract Auction is
 
         IERC721(auction.nftContract).safeTransferFrom(address(this), winningBid.bidder, auction.tokenId);
 
-        uint256 fee = (winningBid.amount * feeRate) / 10000;
+        // 使用 virtual 函数计算手续费，子合约可以重写
+        uint256 fee = calculateFee(winningBid.amount, winningBid.isETH, auction.paymentToken);
         uint256 sellerAmount = winningBid.amount - fee;
 
         if (winningBid.isETH) {
@@ -241,7 +248,7 @@ contract Auction is
     /**
      * @notice 取消拍卖（仅卖家）
      */
-    function cancelAuction(uint256 auctionId) external {
+    function cancelAuction(uint256 auctionId) external virtual {
         AuctionInfo storage auction = _auctions[auctionId];
         require(auction.status == IAuction.AuctionStatus.Active, "Auction not active");
         require(auction.seller == msg.sender, "Not seller");
@@ -259,14 +266,14 @@ contract Auction is
     /**
      * @notice 获取拍卖信息
      */
-    function getAuction(uint256 auctionId) external view returns (IAuction.AuctionInfo memory) {
+    function getAuction(uint256 auctionId) external view virtual returns (IAuction.AuctionInfo memory) {
         return _auctions[auctionId];
     }
 
     /**
      * @notice 获取最高出价
      */
-    function getHighestBid(uint256 auctionId) external view returns (IAuction.Bid memory) {
+    function getHighestBid(uint256 auctionId) external view virtual returns (IAuction.Bid memory) {
         if (_bids[auctionId].length == 0) {
             return Bid({bidder: address(0), amount: 0, timestamp: 0, isETH: false});
         }
@@ -276,7 +283,7 @@ contract Auction is
     /**
      * @notice 获取所有出价
      */
-    function getAllBids(uint256 auctionId) external view returns (IAuction.Bid[] memory) {
+    function getAllBids(uint256 auctionId) external view virtual returns (IAuction.Bid[] memory) {
         return _bids[auctionId];
     }
 
@@ -285,7 +292,7 @@ contract Auction is
     /**
      * @notice 设置代币价格预言机
      */
-    function setTokenPriceFeed(address token, address priceFeed) external onlyOwner {
+    function setTokenPriceFeed(address token, address priceFeed) external virtual onlyOwner {
         require(token != address(0), "Invalid token");
         require(priceFeed != address(0), "Invalid price feed");
         tokenPriceFeeds[token] = AggregatorV3Interface(priceFeed);
@@ -294,7 +301,7 @@ contract Auction is
     /**
      * @notice 设置手续费率
      */
-    function setFeeRate(uint256 _feeRate) external onlyOwner {
+    function setFeeRate(uint256 _feeRate) external virtual onlyOwner {
         require(_feeRate <= 1000, "Fee rate too high");
         feeRate = _feeRate;
     }
@@ -302,9 +309,23 @@ contract Auction is
     /**
      * @notice 设置手续费接收者
      */
-    function setFeeRecipient(address _feeRecipient) external onlyOwner {
+    function setFeeRecipient(address _feeRecipient) external virtual onlyOwner {
         require(_feeRecipient != address(0), "Invalid fee recipient");
         feeRecipient = _feeRecipient;
+    }
+
+    // ========== 手续费计算（可被子合约重写） ==========
+
+    /**
+     * @notice 计算手续费（子合约可以重写此函数实现自定义逻辑）
+     */
+    function calculateFee(
+        uint256 amount,
+        bool isETH,
+        address paymentToken
+    ) public virtual view returns (uint256) {
+        // V1 版本：简单的固定手续费率
+        return (amount * feeRate) / 10000;
     }
 
     // ========== 提现函数 ==========
@@ -312,7 +333,7 @@ contract Auction is
     /**
      * @notice 提取待退还的 ETH
      */
-    function withdrawETH() external nonReentrant {
+    function withdrawETH() external virtual nonReentrant {
         uint256 amount = _pendingETHWithdrawals[msg.sender];
         require(amount > 0, "No ETH to withdraw");
         _pendingETHWithdrawals[msg.sender] = 0;
@@ -324,7 +345,7 @@ contract Auction is
     /**
      * @notice 提取待退还的 ERC20 代币
      */
-    function withdrawToken(address token) external nonReentrant {
+    function withdrawToken(address token) external virtual nonReentrant {
         uint256 amount = _pendingTokenWithdrawals[msg.sender][token];
         require(amount > 0, "No tokens to withdraw");
         _pendingTokenWithdrawals[msg.sender][token] = 0;
@@ -335,7 +356,7 @@ contract Auction is
     /**
      * @notice 接收 ETH
      */
-    receive() external payable {
+    receive() external payable virtual {
         revert("Use placeBid() function");
     }
 
@@ -347,7 +368,7 @@ contract Auction is
         address,
         uint256,
         bytes calldata
-    ) external pure override returns (bytes4) {
+    ) external pure virtual override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 }

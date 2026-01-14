@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/auction/Auction.sol";
+import "../../src/auction/AuctionV1.sol";
 import "../../src/nft/NFTMarketplace.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
@@ -13,9 +13,9 @@ import "chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/Aggrega
  * @notice Auction 合约基本功能测试
  */
 contract AuctionTest is Test {
-    Auction auctionImplementation;
+    AuctionV1 auctionImplementation;
     ERC1967Proxy proxy;
-    Auction auction; // 代理合约接口
+    AuctionV1 auction; // 代理合约接口
 
     NFTMarketplace nft;
     MockERC20 token;
@@ -43,11 +43,11 @@ contract AuctionTest is Test {
         tokenPriceFeed = new MockPriceFeed(1 * 1e8); // $1 per token
 
         // 部署 Auction 实现合约
-        auctionImplementation = new Auction();
+        auctionImplementation = new AuctionV1();
 
         // 编码初始化调用数据
         bytes memory initData = abi.encodeWithSelector(
-            Auction.initialize.selector,
+            bytes4(keccak256("initialize(address,address,address,uint256)")),
             owner,
             address(ethPriceFeed),
             feeRecipient,
@@ -61,7 +61,7 @@ contract AuctionTest is Test {
         );
 
         // 通过代理地址创建合约实例
-        auction = Auction(payable(address(proxy)));
+        auction = AuctionV1(payable(address(proxy)));
 
         // 设置代币价格预言机
         auction.setTokenPriceFeed(address(token), address(tokenPriceFeed));

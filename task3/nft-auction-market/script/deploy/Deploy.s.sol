@@ -2,15 +2,15 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
-import "../../src/auction/Auction.sol";
+import "../../src/auction/AuctionV1.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 /**
  * @title DeployAuction
- * @notice 部署 Auction UUPS 代理合约
+ * @notice 部署 Auction V1 UUPS 代理合约
  */
 contract DeployAuction is Script {
-    Auction public implementation;
+    AuctionV1 public implementation;
     ERC1967Proxy public proxy;
 
     function run() external {
@@ -20,7 +20,7 @@ contract DeployAuction is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // 部署实现合约
-        implementation = new Auction();
+        implementation = new AuctionV1();
         console.log("Implementation deployed at:", address(implementation));
 
         // 初始化参数
@@ -30,7 +30,7 @@ contract DeployAuction is Script {
 
         // 编码初始化调用数据
         bytes memory initData = abi.encodeWithSelector(
-            Auction.initialize.selector,
+            bytes4(keccak256("initialize(address,address,address,uint256)")),
             deployer, // initialOwner
             ethPriceFeed,
             feeRecipient,

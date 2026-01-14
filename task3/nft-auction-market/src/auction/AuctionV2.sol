@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -22,6 +23,7 @@ import "./PriceConverter.sol";
 contract AuctionV2 is
     Initializable,
     IAuction,
+    IERC721Receiver,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     UUPSUpgradeable
@@ -414,5 +416,17 @@ contract AuctionV2 is
      */
     receive() external payable {
         revert("Use placeBid() function");
+    }
+
+    /**
+     * @notice 实现 ERC721Receiver 接口，允许合约接收 NFT
+     */
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 }

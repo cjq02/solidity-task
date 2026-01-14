@@ -224,7 +224,7 @@ forge build
 ls -la out/
 ```
 
-> **在此处放置编译成功截图**
+![forge-build](./img/forge-build.png)
 
 **编译输出示例**:
 ```
@@ -245,8 +245,6 @@ forge test --gas-report
 # 生成测试覆盖率报告
 forge coverage
 ```
-
-> **在此处放置测试通过截图**
 
 **测试输出示例**:
 ```
@@ -275,21 +273,14 @@ Infura 是 ConsenSys（MetaMask 母公司）提供的免费 RPC 服务，操作�
    - 输入 API Key 名称（如 "NFT Auction Market"）
    - 选择网络：在 "What network do you want to use first?" 部分，从下拉菜单选择 **"Sepolia"**
    - 点击 **"Create"** 完成创建
-
-   **注意**：免费计划通常只提供一个 API Key。如果已经有一个 API Key，继续使用现有的即可，无需创建新的。
-
-4. **获取 RPC URL**：
-   - 在 Dashboard 中找到你的 API Key
-   - 点击进入 API Key 详情页
-   - 在 **"Endpoints"** 部分，找到 **"Ethereum"**
-   - 在网络下拉列表中选择 **"Sepolia"**
-   - 切换到 **"HTTPS"** 标签
    - 复制显示的 RPC URL，格式如下：
      ```
      https://sepolia.infura.io/v3/YOUR_PROJECT_ID
      ```
 
-> **在此处放置 Infura 获取 RPC URL 截图**
+   **注意**：免费计划通常只提供一个 API Key。如果已经有一个 API Key，继续使用现有的即可，无需创建新的。
+
+![infura-rpc-url](./img/infura-rpc-url.png)
 ---
 
 ##### 1.2 获取 Etherscan API Key
@@ -301,7 +292,7 @@ Infura 是 ConsenSys（MetaMask 母公司）提供的免费 RPC 服务，操作�
 5. 点击 **"Add"** 添加新 API Key
 6. 复制 **API Key Token**（是一串 32 位字符）
 
-> **在此处放置 Etherscan 获取 API Key 截图**
+![etherscan-api-key](./img/etherscan-api-key.png)
 
 ---
 
@@ -318,7 +309,7 @@ Infura 是 ConsenSys（MetaMask 母公司）提供的免费 RPC 服务，操作�
    - 示例：`abc123...789`（不带 0x 前缀）或 `0xabc123...789`（带 0x 前缀）
    - 在 `.env` 文件中使用时，**去掉 0x 前缀**
 
-> **在此处放置 MetaMask 导出私钥截图**
+![private-key](./img/private-key.png)
 
 **安全提示** ⚠️：
 - **永远不要**将私钥提交到 Git 仓库
@@ -366,7 +357,9 @@ forge script script/deploy/Deploy.s.sol \
   --delay 15
 ```
 
-> **在此处放置 NFT 合约部署截图**
+![deploy-nft1](./img/deploy-nft1.png)
+
+![deploy-nft2](./img/deploy-nft2.png)
 
 **部署信息**:
 
@@ -403,19 +396,20 @@ forge script script/deploy/Deploy.s.sol:DeployAuction \
 
 | 项目 | 值 |
 |-----|---|
-| 实现合约地址 | `0x...` |
-| 代理合约地址 | `0x...` |
-| 交易哈希 | `0x...` |
-| Etherscan | [查看合约](链接) |
+| 实现合约地址 | `0x4D5F655c9F1C9E6701D473CB15998a3527Ff1E28` |
+| 代理合约地址 | `0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240` |
+| 交易哈希 | `0xcb8abb4af7011c5bb87afcaeee74fbf7d85a702472b2681ad5d10cbb9af83e1a` |
+| Etherscan | [查看合约](https://sepolia.etherscan.io/address/0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240) |
 
 **部署参数**:
 
 | 参数 | 值 |
 |-----|---|
-| 初始 Owner | `0x...` |
+| 初始 Owner | `0x085f0145202298585e699371eb3CFb1441f65110` |
 | ETH 价格预言机 | `0x694AA1769357215DE4FAC081bf1f309aDC325306` |
-| 手续费率 | 2.5% (250 basis points) |
-| 手续费接收者 | `0x...` |
+| 手续费率 | 250 (2.5%) |
+| 手续费接收者 | `0x085f0145202298585e699371eb3CFb1441f65110
+` |
 
 ---
 
@@ -434,7 +428,7 @@ cast call <PROXY_ADDRESS> "feeRate()(uint256)" --rpc-url $SEPOLIA_RPC_URL
 cast call <PROXY_ADDRESS> "ethPriceFeed()(address)" --rpc-url $SEPOLIA_RPC_URL
 ```
 
-> **在此处放置合约验证截图**
+![verify-contract](./img/verify-contract.png)
 
 ---
 
@@ -548,17 +542,6 @@ auction.endAuction(auctionId);
 
 ---
 
-## 文档
-
-| 文档 | 路径 | 说明 |
-|-----|------|------|
-| 提交内容指南 | [doc/提交内容指南.md](doc/提交内容指南.md) | 作业提交清单和要求 |
-| 测试网部署指南 | [doc/测试网部署指南.md](doc/测试网部署指南.md) | 详细的部署步骤说明 |
-| 线上测试操作指南 | [doc/线上测试操作指南.md](doc/线上测试操作指南.md) | 合约功能测试步骤 |
-| 测试报告 | [TEST_REPORT.md](TEST_REPORT.md) | 测试结果和覆盖率 |
-
----
-
 ## 项目亮点
 
 1. **完整的 UUPS 代理模式**
@@ -581,9 +564,3 @@ auction.endAuction(auctionId);
    - 权限控制（Ownable）
    - 价格数据验证
    - 出价验证机制
-
----
-
-## License
-
-MIT

@@ -25,16 +25,11 @@
 forge test -vv
 ```
 
-> **在此处放置测试运行输出截图**
+![forge-test1](./img/forge-test1.png)
 
-**测试结果汇总**:
+![forge-test2](./img/forge-test2.png)
 
-| 测试合约 | 测试用例数 | 通过 | 失败 | 跳过 |
-|---------|-----------|------|------|------|
-| NFTMarketplace.t.sol | `[填写]` | `[填写]` | 0 | 0 |
-| Auction.t.sol | `[填写]` | `[填写]` | 0 | 0 |
-| AuctionV2.t.sol | `[填写]` | `[填写]` | 0 | 0 |
-| **总计** | `[填写]` | `[填写]` | 0 | 0 |
+![forge-test3](./img/forge-test3.png)
 
 ---
 
@@ -45,18 +40,9 @@ forge test -vv
 forge coverage
 ```
 
-> **在此处放置测试覆盖率输出截图**
+![forge-coverage](./img/forge-coverage.png)
 
-**覆盖率详情**:
-
-| 文件 | 行覆盖率 | 分支覆盖率 | 函数覆盖率 |
-|-----|---------|-----------|-----------|
-| NFTMarketplace.sol | `[填写]%` | `[填写]%` | `[填写]%` |
-| Auction.sol | `[填写]%` | `[填写]%` | `[填写]%` |
-| AuctionV1.sol | `[填写]%` | `[填写]%` | `[填写]%` |
-| AuctionV2.sol | `[填写]%` | `[填写]%` | `[填写]%` |
-| PriceConverter.sol | `[填写]%` | `[填写]%` | `[填写]%` |
-| **总体** | `[填写]%` | `[填写]%` | `[填写]%` |
+![forge-coverage-report](./img/forge-coverage-report.png)
 
 ---
 
@@ -67,19 +53,13 @@ forge coverage
 forge test --gas-report
 ```
 
-> **在此处放置 Gas 报告截图**
+![gas-report](./img/gas-report.png)
 
-**主要操作 Gas 消耗**:
+![gas-report1](./img/gas-report1.png)
 
-| 操作 | Gas Used | USD Cost (估算) |
-|-----|----------|----------------|
-| NFT 铸造 | `[填写]` | `[填写]` |
-| 创建拍卖 | `[填写]` | `[填写]` |
-| ETH 出价 | `[填写]` | `[填写]` |
-| ERC20 出价 | `[填写]` | `[填写]` |
-| 结束拍卖 | `[填写]` | `[填写]` |
-| 取消拍卖 | `[填写]` | `[填写]` |
-| 合约升级 | `[填写]` | `[填写]` |
+![gas-report2](./img/gas-report2.png)
+
+![gas-report3](./img/gas-report3.png)
 
 ---
 

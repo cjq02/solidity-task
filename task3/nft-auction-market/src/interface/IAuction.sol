@@ -9,9 +9,9 @@ pragma solidity ^0.8.20;
 interface IAuction {
     // 拍卖状态枚举
     enum AuctionStatus {
-        Active,      // 拍卖进行中
-        Ended,       // 拍卖已结束
-        Cancelled    // 拍卖已取消
+        Active, // 拍卖进行中
+        Ended, // 拍卖已结束
+        Cancelled // 拍卖已取消
     }
 
     /**
@@ -103,6 +103,14 @@ interface IAuction {
     event AuctionCancelled(uint256 indexed auctionId);
 
     /**
+     * @notice 提取事件
+     * @param user 提取者地址
+     * @param amount 提取金额
+     * @param isETH 是否为 ETH（false 表示 ERC20 代币）
+     */
+    event Withdrawn(address indexed user, uint256 amount, bool isETH);
+
+    /**
      * @notice 创建新的 NFT 拍卖
      * @dev 调用前需先授权合约操作 NFT
      * @param nftContract NFT 合约地址
@@ -166,4 +174,17 @@ interface IAuction {
     function getHighestBid(
         uint256 auctionId
     ) external view returns (Bid memory);
+
+    /**
+     * @notice 提取待退还的 ETH
+     * @dev 出价被覆盖后，用户需主动调用此函数提取资金
+     */
+    function withdrawETH() external;
+
+    /**
+     * @notice 提取待退还的 ERC20 代币
+     * @param token 代币合约地址
+     * @dev 出价被覆盖后，用户需主动调用此函数提取资金
+     */
+    function withdrawToken(address token) external;
 }

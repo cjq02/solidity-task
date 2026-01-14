@@ -434,12 +434,50 @@ cast call <PROXY_ADDRESS> "ethPriceFeed()(address)" --rpc-url $SEPOLIA_RPC_URL
 
 ### 合约升级（V1 → V2）
 
+#### 📖 关于 ERC-1967 存储槽
+
+本项目使用 `ERC1967Proxy`（UUPS 代理模式），实现合约地址存储在 ERC-1967 标准定义的存储槽中。
+
+**存储槽位置的计算方法：**
+
+根据 ERC-1967 标准，实现合约地址的存储槽位置计算公式为：
+
+```
+存储槽 = keccak256("eip1967.proxy.implementation") - 1
+```
+
+**计算步骤：**
+
+1. 计算字符串的 Keccak-256 哈希值：
+   ```bash
+   cast keccak "eip1967.proxy.implementation"
+   # 结果：0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbd
+   ```
+
+2. 将哈希值减去 1，得到存储槽位置：
+   ```
+   0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbd - 1
+   = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+   ```
+
+**为什么使用标准化的存储槽？**
+
+- ✅ 避免与实现合约的存储布局冲突
+- ✅ 确保所有遵循 ERC-1967 标准的代理合约使用相同的存储位置
+- ✅ 方便工具和前端直接读取实现地址
+
+> **注意**：`ERC1967Proxy` 没有公开的 `implementation()` 函数，因此不能使用 `cast call` 直接调用。必须通过读取存储槽来获取实现地址。
+
+---
+
 #### 1. 准备升级
 
 ```bash
-# 记录当前实现合约地址
-cast call <PROXY_ADDRESS> "implementation()(address)" --rpc-url $SEPOLIA_RPC_URL
+# 记录当前实现合约地址（读取 ERC-1967 存储槽）
+cast storage <PROXY_ADDRESS> 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc --rpc-url $SEPOLIA_RPC_URL | cast parse-bytes32-address
 ```
+
+![upgrade-prepare](./img/upgrade-prepare.png)
 
 #### 2. 执行升级
 
@@ -453,27 +491,31 @@ forge script script/upgrade/Upgrade.s.sol \
   --delay 15
 ```
 
-> **在此处放置合约升级截图**
+![upgrade-execute1](./img/upgrade-execute1.png)
+
+![upgrade-execute2](./img/upgrade-execute2.png)
 
 **升级信息**:
 
 | 项目 | 值 |
 |-----|---|
-| V2 实现合约地址 | `0x...` |
-| 交易哈希 | `0x...` |
-| Etherscan | [查看合约](链接) |
+| V2 实现合约地址 | `0x5b6295cD578E923aF2E7ADe81d081C3259377508` |
+| 升级交易哈希 | `0x7df5b8364b5ac2facc517f474cf5d4f78a1d80c6826e6d792d0ccf145fda4f14` |
+| 部署交易哈希 | `0xd15fcae666ab654e11fb788e5f6b4e47190d3010a400e20c1cfd228314b1ab4a` |
+| Etherscan | [查看实现合约](https://sepolia.etherscan.io/address/0x5b6295cD578E923aF2E7ADe81d081C3259377508) |
 
 #### 3. 验证升级
 
 ```bash
-# 验证实现合约已更改
-cast call <PROXY_ADDRESS> "implementation()(address)" --rpc-url $SEPOLIA_RPC_URL
+# 验证实现合约已更改（读取 ERC-1967 存储槽）
+cast storage <PROXY_ADDRESS> 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc --rpc-url $SEPOLIA_RPC_URL | cast parse-bytes32-address
 
-# 调用 V2 特有函数验证
-cast call <PROXY_ADDRESS> "getFeeTierCount()(uint256)" --rpc-url $SEPOLIA_RPC_URL
+# 可选：调用 V2 特有函数验证（验证合约已升级到 V2）
+# 注意：getFeeTiers() 返回数组，在命令行中可能显示不完整，但可以验证函数存在
+cast call <PROXY_ADDRESS> "getFeeTiers()((uint256,uint256)[])" --rpc-url $SEPOLIA_RPC_URL
 ```
 
-> **在此处放置升级验证截图**
+![verify-upgrade](./img/verify-upgrade.png)
 
 ---
 
@@ -536,9 +578,9 @@ auction.endAuction(auctionId);
 | 合约 | 地址 | Etherscan |
 |-----|------|-----------|
 | NFTMarketplace | `0x...` | [查看](链接) |
-| Auction Proxy | `0x...` | [查看](链接) |
-| Auction Implementation (V1) | `0x...` | [查看](链接) |
-| Auction Implementation (V2) | `0x...` | [查看](链接) |
+| Auction Proxy | `0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240` | [查看](https://sepolia.etherscan.io/address/0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240) |
+| Auction Implementation (V1) | `0x4D5F655c9F1C9E6701D473CB15998a3527Ff1E28` | [查看](https://sepolia.etherscan.io/address/0x4D5F655c9F1C9E6701D473CB15998a3527Ff1E28) |
+| Auction Implementation (V2) | `0x5b6295cD578E923aF2E7ADe81d081C3259377508` | [查看](https://sepolia.etherscan.io/address/0x5b6295cD578E923aF2E7ADe81d081C3259377508) |
 
 ---
 

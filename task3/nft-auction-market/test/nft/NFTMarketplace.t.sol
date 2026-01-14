@@ -2,7 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../../src/nft/NFTMarketplace.sol";
+import {NFTMarketplace} from "../../src/nft/NFTMarketplace.sol";
+import {IERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
 /**
  * @title NFTMarketplaceTest

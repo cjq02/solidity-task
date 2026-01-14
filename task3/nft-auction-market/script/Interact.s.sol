@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
-import "../src/auction/AuctionV2.sol";
+import {AuctionV2} from "../src/auction/AuctionV2.sol";
 
 /**
  * @title InteractAuction

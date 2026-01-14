@@ -265,20 +265,31 @@ Test result: ok. 3 passed; 0 failed; finished
 
 ##### 1.1 获取 Infura RPC URL
 
-1. 访问 https://infura.io/
-2. 点击 **"Sign Up"** 注册账号
-3. 登录后，点击 **"Create New Key"**
-4. 选择 **"Web3 API"**
-5. 创建一个新项目，名称如 "NFT Auction Market"
-6. 在项目设置中，找到 **"Endpoints"** → **"Ethereum"**
-7. 在网络下拉列表中选择 **"Sepolia"**
-8. 复制 **HTTPS Endpoint**，格式如下：
-   ```
-   https://sepolia.infura.io/v3/YOUR_PROJECT_ID
-   ```
+Infura 是 ConsenSys（MetaMask 母公司）提供的免费 RPC 服务，操作简单：
+
+1. **访问 Infura 官网**：https://www.infura.io/
+2. **注册账号**：点击 **"Get Started"** 注册账号（可以使用邮箱或 MetaMask 钱包注册）
+3. **创建 API Key**：
+   - 登录后进入 Dashboard
+   - 如果还没有 API Key，点击右上角紫色的 **"Create new API key"** 按钮
+   - 输入 API Key 名称（如 "NFT Auction Market"）
+   - 选择网络：在 "What network do you want to use first?" 部分，从下拉菜单选择 **"Sepolia"**
+   - 点击 **"Create"** 完成创建
+
+   **注意**：免费计划通常只提供一个 API Key。如果已经有一个 API Key，继续使用现有的即可，无需创建新的。
+
+4. **获取 RPC URL**：
+   - 在 Dashboard 中找到你的 API Key
+   - 点击进入 API Key 详情页
+   - 在 **"Endpoints"** 部分，找到 **"Ethereum"**
+   - 在网络下拉列表中选择 **"Sepolia"**
+   - 切换到 **"HTTPS"** 标签
+   - 复制显示的 RPC URL，格式如下：
+     ```
+     https://sepolia.infura.io/v3/YOUR_PROJECT_ID
+     ```
 
 > **在此处放置 Infura 获取 RPC URL 截图**
-
 ---
 
 ##### 1.2 获取 Etherscan API Key
@@ -294,11 +305,32 @@ Test result: ok. 3 passed; 0 failed; finished
 
 ---
 
-##### 1.3 准备其他配置
+##### 1.3 获取 PRIVATE_KEY（从 MetaMask 导出）
+
+**方法：从 MetaMask 导出私钥（已有钱包）**
+
+1. 打开 MetaMask 浏览器扩展
+2. 点击右上角 **三个点** 菜单 → **账户详情**
+3. 向下滚动，找到 **"导出私钥"** 按钮
+4. 点击导出，输入 MetaMask 密码确认
+5. 复制显示的私钥
+   - 格式：64 位十六进制字符
+   - 示例：`abc123...789`（不带 0x 前缀）或 `0xabc123...789`（带 0x 前缀）
+   - 在 `.env` 文件中使用时，**去掉 0x 前缀**
+
+> **在此处放置 MetaMask 导出私钥截图**
+
+**安全提示** ⚠️：
+- **永远不要**将私钥提交到 Git 仓库
+- **永远不要**与他人分享你的私钥
+- 只在测试网使用，不要在主网使用包含真实资产的账户
+
+---
+
+##### 1.4 准备其他配置
 
 | 配置项 | 说明 | 值 |
 |-------|------|-----|
-| `PRIVATE_KEY` | 部署钱包的私钥（不要包含 0x 前缀） | 从 MetaMask 导出 |
 | `ETH_PRICE_FEED` | Chainlink ETH/USD 价格预言机地址（Sepolia） | `0x694AA1769357215DE4FAC081bf1f309aDC325306` |
 | `FEE_RECIPIENT` | 手续费接收地址 | 你的钱包地址 |
 
@@ -320,7 +352,7 @@ Test result: ok. 3 passed; 0 failed; finished
 
 ---
 
-#### 4. 部署 NFT 合约
+#### 3. 部署 NFT 合约
 
 ```bash
 # 加载环境变量并部署
@@ -353,7 +385,7 @@ forge script script/deploy/Deploy.s.sol \
 
 ---
 
-#### 5. 部署拍卖合约（V1）
+#### 4. 部署拍卖合约（V1）
 
 ```bash
 # 部署 AuctionV1 代理合约
@@ -387,7 +419,7 @@ forge script script/deploy/Deploy.s.sol:DeployAuction \
 
 ---
 
-#### 6. 验证部署
+#### 5. 验证部署
 
 使用 Cast 命令验证合约部署：
 

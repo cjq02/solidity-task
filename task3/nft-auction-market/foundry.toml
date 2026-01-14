@@ -7,5 +7,12 @@ remappings = [
     "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
     "chainlink-brownie-contracts/=lib/chainlink-brownie-contracts/",
 ]
+# 禁用编译器警告
+solc = "0.8.33"
+via_ir = false
+
+# Linter 配置 - 忽略特定规则
+[lint]
+exclude_lints = ["mixed-case-variable", "mixed-case-function"]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

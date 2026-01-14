@@ -4,9 +4,10 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "../../src/auction/AuctionV1.sol";
 import "../../src/nft/NFTMarketplace.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {AggregatorV3Interface} from "chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import {IAuction} from "../../src/interface/IAuction.sol";
 
 /**
  * @title AuctionTest
@@ -55,10 +56,7 @@ contract AuctionTest is Test {
         );
 
         // 部署代理合约
-        proxy = new ERC1967Proxy(
-            address(auctionImplementation),
-            initData
-        );
+        proxy = new ERC1967Proxy(address(auctionImplementation), initData);
 
         // 通过代理地址创建合约实例
         auction = AuctionV1(payable(address(proxy)));
@@ -125,13 +123,7 @@ contract AuctionTest is Test {
 
     function test_CreateAuctionFails_InvalidNFTContract() public {
         vm.expectRevert("Invalid NFT contract");
-        auction.createAuction(
-            address(0),
-            0,
-            1 days,
-            100 * 1e18,
-            address(0)
-        );
+        auction.createAuction(address(0), 0, 1 days, 100 * 1e18, address(0));
     }
 
     function test_CreateAuctionFails_NotNFTOwner() public {
@@ -326,7 +318,10 @@ contract AuctionTest is Test {
 
         // 验证状态
         IAuction.AuctionInfo memory auctionInfo = auction.getAuction(auctionId);
-        assertEq(uint(auctionInfo.status), uint(IAuction.AuctionStatus.Cancelled));
+        assertEq(
+            uint(auctionInfo.status),
+            uint(IAuction.AuctionStatus.Cancelled)
+        );
 
         // 验证 NFT 退还给卖家
         assertEq(nft.ownerOf(nftTokenId), seller);
@@ -479,7 +474,11 @@ contract AuctionTest is Test {
 // ========== Mock 合约 ==========
 
 contract MockERC20 is ERC20 {
-    constructor(string memory name, string memory symbol, uint8 decimals) ERC20(name, symbol) {}
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint8 decimals
+    ) ERC20(name, symbol) {}
 
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
@@ -510,7 +509,9 @@ contract MockPriceFeed is AggregatorV3Interface {
             uint80 answeredInRound
         )
     {
+        // forge-lint: disable-next-line(unsafe-typecast)
         return (1, int256(price), block.timestamp, block.timestamp, 1);
+        // casting to 'int256' is safe because price values are always positive and well within int256 range
     }
 
     function decimals() external view override returns (uint8) {
@@ -525,7 +526,9 @@ contract MockPriceFeed is AggregatorV3Interface {
         return 1;
     }
 
-    function getRoundData(uint80 _roundId)
+    function getRoundData(
+        uint80
+    )
         external
         view
         override
@@ -537,6 +540,7 @@ contract MockPriceFeed is AggregatorV3Interface {
             uint80 answeredInRound
         )
     {
+        // forge-lint: disable-next-line(unsafe-typecast)
         return (1, int256(price), block.timestamp, block.timestamp, 1);
     }
 

@@ -80,9 +80,13 @@ contract NFTMarketplace is ERC721, ERC721URIStorage, Ownable {
     /**
      * @dev 获取总供应量
      * @return 已铸造的 NFT 总数
+     * @notice 由于 tokenId 从 1 开始，总供应量 = _nextTokenId - 1
      */
     function totalSupply() public view returns (uint256) {
-        return _nextTokenId;
+        // tokenId 从 1 开始，所以总供应量 = _nextTokenId - 1
+        // 例如：_nextTokenId = 1 时，还没有铸造，totalSupply = 0
+        //      _nextTokenId = 2 时，铸造了 1 个，totalSupply = 1
+        return _nextTokenId > 0 ? _nextTokenId - 1 : 0;
     }
 
     function tokenURI(

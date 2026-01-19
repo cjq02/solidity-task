@@ -362,9 +362,9 @@ forge script script/deploy/DeployNFT.s.sol \
 
 | 项目 | 值 |
 |-----|---|
-| 合约地址 | `0x41B2eA52228706FD2a1c81Ab9713A71a710072b4` |
-| 交易哈希 | `0xa446644d3b5390b740a04332e83a4c9aa40c31938f7d0aecc70833b72a0a1c77` |
-| Etherscan | [查看合约](https://sepolia.etherscan.io/address/0x41B2eA52228706FD2a1c81Ab9713A71a710072b4) |
+| 合约地址 | `0xD10C1D86c01dFec8927f5fd76f9c90B07c24A106` |
+| 交易哈希 | `0x631792dcd002c99d3b0deca7d4b63f6b26a875e84de9c9d939fd88c72e3493e1` |
+| Etherscan | [查看合约](https://sepolia.etherscan.io/address/0xD10C1D86c01dFec8927f5fd76f9c90B07c24A106) |
 
 **部署命令说明**:
 - `--rpc-url`: RPC 端点

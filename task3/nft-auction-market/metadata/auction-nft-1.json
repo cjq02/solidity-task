@@ -1,0 +1,20 @@
+{
+    "name": "Auction NFT #1",
+    "description": "NFT for auction marketplace testing on Sepolia",
+    "image": "ipfs://bafybeihoewy2rkteyizptf7s2jekwgzaewpovysgipcw2mtpf2y5er77i4",
+    "external_url": "",
+    "attributes": [
+      {
+        "trait_type": "Collection",
+        "value": "Auction Market"
+      },
+      {
+        "trait_type": "Rarity",
+        "value": "Common"
+      },
+      {
+        "trait_type": "Type",
+        "value": "Testing"
+      }
+    ]
+  }

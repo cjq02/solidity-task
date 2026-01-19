@@ -720,6 +720,66 @@ cjq_ubuntu@LAPTOP-CJQ:~/web3/projects/solidity-task/task3/nft-auction-market$ ca
 
 ---
 
+#### 测试 4.3.8：Account C 提取被覆盖的出价
+
+**说明**：
+- Account C 出价 0.05 ETH 后，Account D 出价 0.06 ETH 将其覆盖
+- Account C 的 0.05 ETH 被锁定在合约中，需要主动提取
+- 拍卖结束后，Account C 可以调用 `withdrawETH()` 提取被覆盖的出价
+
+```bash
+# Account C 提取被覆盖的出价
+cast send $AUCTION_PROXY_ADDRESS \
+  "withdrawETH()" \
+  --rpc-url $SEPOLIA_RPC_URL \
+  --private-key $ACCOUNT_C_PRIVATE_KEY
+```
+
+**参数说明**：
+- `withdrawETH()`: 提取待退还的 ETH 函数
+- `--private-key $ACCOUNT_C_PRIVATE_KEY`: Account C 的私钥（被覆盖出价的用户）
+
+**测试结果**：
+```
+cjq_ubuntu@LAPTOP-CJQ:~/web3/projects/solidity-task/task3/nft-auction-market$ cast send $AUCTION_PROXY_ADDRESS \
+  "withdrawETH()" \
+  --rpc-url $SEPOLIA_RPC_URL \
+  --private-key $ACCOUNT_C_PRIVATE_KEY
+blockHash            0x2522fc02199dbbe899c72236a8798067d453f174944b952fc81d1faa255f122f
+blockNumber          10077422
+gasUsed              38303
+from                 0x539F128f1Cd5877cA3712ba33f9E78EdFcC7eFAD
+status               1 (success)
+transactionHash      0x1ceb5e1e130788471f0c992f6276624191c1fce3b90a29277657627f214d20b1
+```
+
+**交易信息**：
+- 交易哈希: `0x1ceb5e1e130788471f0c992f6276624191c1fce3b90a29277657627f214d20b1`
+- 交易状态: ✅ 成功 (status: 1)
+- 区块号: 10077422
+- Gas 使用量: 38,303
+- 调用者: Account C (0x539F128f1Cd5877cA3712ba33f9E78EdFcC7eFAD)
+
+Etherscan: https://sepolia.etherscan.io/tx/0x1ceb5e1e130788471f0c992f6276624191c1fce3b90a29277657627f214d20b1
+
+**事件日志**：
+- Withdrawn 事件: Account C 提取 ETH
+  - 提取者: Account C (0x539F128f1Cd5877cA3712ba33f9E78EdFcC7eFAD)
+  - 提取金额: 0.05 ETH (50000000000000000 wei)
+  - 支付方式: ETH (true)
+  - 说明: Account C 成功提取了被 Account D 覆盖的 0.05 ETH 出价
+
+**验证结果**：
+- ✅ Account C 成功提取 0.05 ETH
+- ✅ Account C 的余额增加 0.05 ETH
+- ✅ 合约中的 `_pendingETHWithdrawals[Account C]` 被清零
+- ✅ 提取操作成功完成
+
+**截图**：
+> [在此处粘贴截图]
+
+---
+
 ### 4.4 合约升级测试
 
 #### 测试 4.4.1：检查当前版本

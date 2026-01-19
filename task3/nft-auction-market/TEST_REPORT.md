@@ -225,17 +225,19 @@ cast send $NFT_CONTRACT_ADDRESS \
 
 **测试结果**：
 ```
-交易哈希: 0x4e6ed82692df23ab79d16162aef3d1b743c21f35e8c0126fc22d0da3af29e311
+交易哈希: 0xbfa75444a66061ca1b03af2d691561c40249d2b6c759a44eca4417dac7109004
 交易状态: ✅ 成功 (status: 1)
-区块号: 10075092
-Gas 使用量: 190,440
+区块号: 10076064
+Gas 使用量: 156,240
+Token ID: 1
 元数据 URI: ipfs://bafkreibzpga6rc7akp6okq5mimpjrgdffheut5xvag6zrqjil7eqbxaz4u
 
-Etherscan: https://sepolia.etherscan.io/tx/0x4e6ed82692df23ab79d16162aef3d1b743c21f35e8c0126fc22d0da3af29e311
+Etherscan: https://sepolia.etherscan.io/tx/0xbfa75444a66061ca1b03af2d691561c40249d2b6c759a44eca4417dac7109004
 
 事件日志:
-- Transfer 事件: NFT 从零地址转移到 Account B (0x354c393daf549da43485ffe85be464d82149b0e8)
-- TokenURI 设置事件: Token ID 0 的 URI 已设置为 ipfs://bafkreibzpga6rc7akp6okq5mimpjrgdffheut5xvag6zrqjil7eqbxaz4u
+- Transfer 事件: NFT 从零地址转移到 Account B (0x354c393daf549da43485ffe85be464d82149b0e8)，Token ID = 1
+- TokenURI 设置事件: Token ID 1 的 URI 已设置为 ipfs://bafkreibzpga6rc7akp6okq5mimpjrgdffheut5xvag6zrqjil7eqbxaz4u
+- NFTMinted 事件: Token ID 1 已成功铸造
 ```
 
 **截图**：
@@ -243,7 +245,7 @@ Etherscan: https://sepolia.etherscan.io/tx/0x4e6ed82692df23ab79d16162aef3d1b743c
 > 1. **终端命令执行结果**：显示 `cast send` 命令的完整输出（包含交易哈希、状态、Gas 使用量等）
 
   ![cast-send](./img/cast-send-nft-mint.png)
-> 2. **Etherscan 交易详情页**：访问 [交易链接](https://sepolia.etherscan.io/tx/0x4e6ed82692df23ab79d16162aef3d1b743c21f35e8c0126fc22d0da3af29e311) 并截图，显示：
+> 2. **Etherscan 交易详情页**：访问 [交易链接](https://sepolia.etherscan.io/tx/0xbfa75444a66061ca1b03af2d691561c40249d2b6c759a44eca4417dac7109004) 并截图，显示：
 >    - 交易状态（Success ✅）
 >    - 交易详情（From/To 地址、Gas Used、区块号等）
 >    - 事件日志（Transfer 和 TokenURI 事件）
@@ -254,16 +256,16 @@ Etherscan: https://sepolia.etherscan.io/tx/0x4e6ed82692df23ab79d16162aef3d1b743c
 #### 测试 4.2.3：查询 NFT 信息
 
 ```bash
-# 查询 NFT 所有者（Token ID 0）
+# 查询 NFT 所有者（Token ID 1）
 cast call $NFT_CONTRACT_ADDRESS \
   "ownerOf(uint256)(address)" \
-  0 \
+  1 \
   --rpc-url $SEPOLIA_RPC_URL
 
-# 查询 NFT 元数据（Token ID 0）
+# 查询 NFT 元数据（Token ID 1）
 cast call $NFT_CONTRACT_ADDRESS \
   "tokenURI(uint256)(string)" \
-  0 \
+  1 \
   --rpc-url $SEPOLIA_RPC_URL
 ```
 

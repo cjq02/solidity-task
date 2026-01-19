@@ -11,8 +11,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  * @notice OpenZeppelin v5.0+ 已移除 Counters 库，使用 uint256 代替
  */
 contract NFTMarketplace is ERC721, ERC721URIStorage, Ownable {
-    // Token ID 计数器（从 0 开始）
-    uint256 private _nextTokenId;
+    // Token ID 计数器（从 1 开始，更符合用户习惯和 NFT 市场惯例）
+    uint256 private _nextTokenId = 1;
 
     // 映射：tokenId => tokenURI
     mapping(uint256 => string) private _tokenURIs;

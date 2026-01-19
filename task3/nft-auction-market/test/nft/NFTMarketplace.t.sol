@@ -27,7 +27,7 @@ contract NFTMarketplaceTest is Test {
         assertEq(nft.name(), "Test NFT");
         assertEq(nft.symbol(), "TNFT");
         assertEq(nft.owner(), owner);
-        assertEq(nft.nextTokenId(), 0);
+        assertEq(nft.nextTokenId(), 1); // 从 1 开始
         assertEq(nft.totalSupply(), 0);
     }
 
@@ -40,8 +40,8 @@ contract NFTMarketplaceTest is Test {
         uint256 tokenId = nft.mint(user1, uri);
 
         // 验证 tokenId
-        assertEq(tokenId, 0);
-        assertEq(nft.nextTokenId(), 1);
+        assertEq(tokenId, 1); // 第一个 tokenId 是 1
+        assertEq(nft.nextTokenId(), 2);
         assertEq(nft.totalSupply(), 1);
 
         // 验证所有权
@@ -57,24 +57,24 @@ contract NFTMarketplaceTest is Test {
         uint256 tokenId2 = nft.mint(user2, "ipfs://2");
         uint256 tokenId3 = nft.mint(user1, "ipfs://3");
 
-        // 验证 tokenId 递增
-        assertEq(tokenId1, 0);
-        assertEq(tokenId2, 1);
-        assertEq(tokenId3, 2);
+        // 验证 tokenId 递增（从 1 开始）
+        assertEq(tokenId1, 1);
+        assertEq(tokenId2, 2);
+        assertEq(tokenId3, 3);
 
         // 验证总供应量
         assertEq(nft.totalSupply(), 3);
-        assertEq(nft.nextTokenId(), 3);
+        assertEq(nft.nextTokenId(), 4);
 
         // 验证所有权
-        assertEq(nft.ownerOf(0), user1);
-        assertEq(nft.ownerOf(1), user2);
-        assertEq(nft.ownerOf(2), user1);
+        assertEq(nft.ownerOf(1), user1);
+        assertEq(nft.ownerOf(2), user2);
+        assertEq(nft.ownerOf(3), user1);
 
         // 验证 tokenURI
-        assertEq(nft.tokenURI(0), "ipfs://1");
-        assertEq(nft.tokenURI(1), "ipfs://2");
-        assertEq(nft.tokenURI(2), "ipfs://3");
+        assertEq(nft.tokenURI(1), "ipfs://1");
+        assertEq(nft.tokenURI(2), "ipfs://2");
+        assertEq(nft.tokenURI(3), "ipfs://3");
     }
 
     function test_MintFails_NotOwner() public {
@@ -124,40 +124,40 @@ contract NFTMarketplaceTest is Test {
     }
 
     function test_Burn_Multiple() public {
-        // 铸造 3 个 NFT
+        // 铸造 3 个 NFT（tokenId: 1, 2, 3）
         nft.mint(user1, "ipfs://1");
         nft.mint(user1, "ipfs://2");
         nft.mint(user1, "ipfs://3");
 
-        // 销毁中间的 NFT
+        // 销毁中间的 NFT（tokenId 2）
         vm.prank(user1);
-        nft.burn(1);
+        nft.burn(2);
 
         // 验证其他 NFT 仍然存在
-        assertEq(nft.ownerOf(0), user1);
-        assertEq(nft.ownerOf(2), user1);
+        assertEq(nft.ownerOf(1), user1);
+        assertEq(nft.ownerOf(3), user1);
 
-        // tokenId 1 已销毁
+        // tokenId 2 已销毁
         vm.expectRevert();
-        nft.ownerOf(1);
+        nft.ownerOf(2);
     }
 
     // ========== 测试：查询功能 ==========
 
     function test_NextTokenId() public {
-        assertEq(nft.nextTokenId(), 0);
+        assertEq(nft.nextTokenId(), 1); // 从 1 开始
 
         nft.mint(user1, "ipfs://1");
-        assertEq(nft.nextTokenId(), 1);
+        assertEq(nft.nextTokenId(), 2);
 
         nft.mint(user2, "ipfs://2");
-        assertEq(nft.nextTokenId(), 2);
+        assertEq(nft.nextTokenId(), 3);
 
         // 销毁不影响 nextTokenId
         uint256 tokenId = nft.mint(user1, "ipfs://3");
         vm.prank(user1);
         nft.burn(tokenId);
-        assertEq(nft.nextTokenId(), 3);
+        assertEq(nft.nextTokenId(), 4);
     }
 
     function test_TotalSupply() public {

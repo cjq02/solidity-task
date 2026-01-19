@@ -178,7 +178,7 @@ cast balance $ACCOUNT_A --rpc-url $SEPOLIA_RPC_URL
 
 | 合约类型 | 地址 | Etherscan |
 |---------|------|-----------|
-| NFT 合约 | 0x41B2eA52228706FD2a1c81Ab9713A71a710072b4 | [查看](https://sepolia.etherscan.io/address/0x41B2eA52228706FD2a1c81Ab9713A71a710072b4) |
+| NFT 合约 | 0xD10C1D86c01dFec8927f5fd76f9c90B07c24A106 | [查看](https://sepolia.etherscan.io/address/0xD10C1D86c01dFec8927f5fd76f9c90B07c24A106) |
 | 拍卖代理合约 | 0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240 | [查看](https://sepolia.etherscan.io/address/0x7842104E7ad9f14eCF5aB0352bc6d9d8D6560240) |
 
 ---
@@ -225,14 +225,15 @@ cast send $NFT_CONTRACT_ADDRESS \
 
 **测试结果**：
 ```
-交易哈希: 0xbfa75444a66061ca1b03af2d691561c40249d2b6c759a44eca4417dac7109004
+交易哈希: 0x5d5b9a52787021562e6f7f33aa1fca893b9ceb2131d395020003a9160492a20c
 交易状态: ✅ 成功 (status: 1)
-区块号: 10076064
-Gas 使用量: 156,240
+区块号: 10076132
+Gas 使用量: 173,340
 Token ID: 1
 元数据 URI: ipfs://bafkreibzpga6rc7akp6okq5mimpjrgdffheut5xvag6zrqjil7eqbxaz4u
+NFT 合约地址: 0xD10C1D86c01dFec8927f5fd76f9c90B07c24A106
 
-Etherscan: https://sepolia.etherscan.io/tx/0xbfa75444a66061ca1b03af2d691561c40249d2b6c759a44eca4417dac7109004
+Etherscan: https://sepolia.etherscan.io/tx/0x5d5b9a52787021562e6f7f33aa1fca893b9ceb2131d395020003a9160492a20c
 
 事件日志:
 - Transfer 事件: NFT 从零地址转移到 Account B (0x354c393daf549da43485ffe85be464d82149b0e8)，Token ID = 1
@@ -245,7 +246,7 @@ Etherscan: https://sepolia.etherscan.io/tx/0xbfa75444a66061ca1b03af2d691561c4024
 > 1. **终端命令执行结果**：显示 `cast send` 命令的完整输出（包含交易哈希、状态、Gas 使用量等）
 
   ![cast-send](./img/cast-send-nft-mint.png)
-> 2. **Etherscan 交易详情页**：访问 [交易链接](https://sepolia.etherscan.io/tx/0xbfa75444a66061ca1b03af2d691561c40249d2b6c759a44eca4417dac7109004) 并截图，显示：
+> 2. **Etherscan 交易详情页**：访问 [交易链接](https://sepolia.etherscan.io/tx/0x5d5b9a52787021562e6f7f33aa1fca893b9ceb2131d395020003a9160492a20c) 并截图，显示：
 >    - 交易状态（Success ✅）
 >    - 交易详情（From/To 地址、Gas Used、区块号等）
 >    - 事件日志（Transfer 和 TokenURI 事件）
@@ -271,17 +272,56 @@ cast call $NFT_CONTRACT_ADDRESS \
 
 **测试结果**：
 ```
-[在此处粘贴命令输出]
+cjq_ubuntu@LAPTOP-CJQ:~/web3/projects/solidity-task/task3/nft-auction-market$ cast call $NFT_CONTRACT_ADDRESS \
+  "ownerOf(uint256)(address)" \
+  1 \
+  --rpc-url $SEPOLIA_RPC_URL
+0x354C393Daf549Da43485FFe85Be464d82149B0e8
+cjq_ubuntu@LAPTOP-CJQ:~/web3/projects/solidity-task/task3/nft-auction-market$ cast call $NFT_CONTRACT_ADDRESS \
+  "tokenURI(uint256)(string)" \
+  1 \
+  --rpc-url $SEPOLIA_RPC_URL
+"ipfs://bafkreibzpga6rc7akp6okq5mimpjrgdffheut5xvag6zrqjil7eqbxaz4u"
 ```
-
-**截图**：
-> [在此处粘贴截图]
 
 ---
 
 ### 4.3 拍卖功能测试
 
 #### 测试 4.3.1：创建 ETH 拍卖
+
+**步骤 1：授权拍卖合约转移 NFT**
+
+```bash
+# Account B 授权拍卖合约可以转移 Token ID 1
+cast send $NFT_CONTRACT_ADDRESS \
+  "approve(address,uint256)" \
+  $AUCTION_PROXY_ADDRESS \
+  1 \
+  --rpc-url $SEPOLIA_RPC_URL \
+  --private-key $ACCOUNT_B_PRIVATE_KEY
+
+# 或者使用 setApprovalForAll 授权所有 NFT（推荐）
+# cast send $NFT_CONTRACT_ADDRESS \
+#   "setApprovalForAll(address,bool)" \
+#   $AUCTION_PROXY_ADDRESS \
+#   true \
+#   --rpc-url $SEPOLIA_RPC_URL \
+#   --private-key $ACCOUNT_B_PRIVATE_KEY
+```
+
+**授权参数说明**：
+
+| 参数 | 值 | 说明 |
+|------|-----|------|
+| 函数 | `approve(address,uint256)` | 授权特定 NFT 给指定地址 |
+| `address` | `$AUCTION_PROXY_ADDRESS` | 被授权的地址（拍卖合约） |
+| `uint256` | `1` | 被授权的 Token ID |
+| 函数（替代） | `setApprovalForAll(address,bool)` | 授权所有 NFT 给指定地址 |
+| `address` | `$AUCTION_PROXY_ADDRESS` | 被授权的地址（拍卖合约） |
+| `bool` | `true` | `true` = 授权，`false` = 取消授权 |
+
+**步骤 2：创建拍卖**
 
 ```bash
 # Account B 创建拍卖
@@ -293,15 +333,27 @@ cast send $AUCTION_PROXY_ADDRESS \
   100000000000000000000 \
   0x0000000000000000000000000000000000000000 \
   --rpc-url $SEPOLIA_RPC_URL \
-  --private-key $PRIVATE_KEY
+  --private-key $ACCOUNT_B_PRIVATE_KEY
 ```
 
 **参数说明**：
-- `NFT_CONTRACT_ADDRESS`: NFT 合约地址
-- `1`: tokenId
-- `3600`: 持续时间（秒）= 1 小时
-- `100000000000000000000`: 最低出价 100 USD (18 decimals)
-- `0x0000000000000000000000000000000000000000`: ETH 地址
+
+| 参数位置 | 参数值 | 说明 |
+|---------|--------|------|
+| 函数签名 | `createAuction(address,uint256,uint256,uint256,address)` | 创建拍卖函数 |
+| 参数 1 | `$NFT_CONTRACT_ADDRESS` | NFT 合约地址（当前：`0xD10C1D86c01dFec8927f5fd76f9c90B07c24A106`） |
+| 参数 2 | `1` | Token ID（要拍卖的 NFT ID，从 1 开始） |
+| 参数 3 | `3600` | 持续时间（秒）= 1 小时（3600 秒） |
+| 参数 4 | `100000000000000000000` | 最低出价（USD，18 位小数）= 100 USD<br>计算：`100 * 10^18 = 100000000000000000000` |
+| 参数 5 | `0x0000000000000000000000000000000000000000` | 支付代币地址<br>- `0x0000...0000`：使用 ETH 出价<br>- 其他地址：使用 ERC20 代币出价 |
+| `--rpc-url` | `$SEPOLIA_RPC_URL` | Sepolia 测试网 RPC 端点 |
+| `--private-key` | `$ACCOUNT_B_PRIVATE_KEY` | Account B 的私钥（NFT 所有者） |
+
+**注意事项**：
+- ⚠️ **必须先授权**：创建拍卖前需要先调用 `approve` 授权拍卖合约
+- ⚠️ **NFT 所有者**：调用者必须是 NFT 的所有者（Token ID 1 属于 Account B）
+- ✅ **最低出价单位**：使用 18 位小数，100 USD = `100 * 10^18`
+- ✅ **持续时间**：以秒为单位，3600 秒 = 1 小时
 
 **测试结果**：
 ```
